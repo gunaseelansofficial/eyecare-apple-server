@@ -39,7 +39,18 @@ exports.getProduct = async (req, res) => {
         
         // If no product found by ID or not a valid ID, try finding by slug (normalized)
         if (!product) {
-            const searchSlug = req.params.id.toLowerCase().replace(/[\s%20_]+/g, '-');
+            let decodedId = req.params.id;
+            try {
+                decodedId = decodeURIComponent(req.params.id);
+            } catch (e) {}
+
+            const searchSlug = decodedId
+                .toLowerCase()
+                .replace(/[\s_]+/g, '-')          // Replace spaces and underscores with hyphens
+                .replace(/[^\w-]/g, '')           // Remove everything else except word characters and hyphens
+                .replace(/-+/g, '-')              // Collapse multiple hyphens into a single hyphen
+                .replace(/^-+|-+$/g, '');         // Trim leading/trailing hyphens
+
             product = await Product.findOne({ slug: searchSlug });
         }
 
