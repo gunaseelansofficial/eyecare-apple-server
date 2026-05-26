@@ -29,8 +29,11 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
+const fs = require('fs');
+const clientDistPath = path.join(__dirname, '../client/dist');
+
+if (process.env.NODE_ENV === 'production' && fs.existsSync(clientDistPath)) {
+    app.use(express.static(clientDistPath));
 
     app.get(/.*/, (req, res) =>
         res.sendFile(
